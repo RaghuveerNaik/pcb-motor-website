@@ -18,3 +18,4 @@ project-folder/
   terms_and_conditions.html          <-- html file
   images/            <-- Images folder
 
+website https://raghuveernaik.github.io/pcb-motor-website/
