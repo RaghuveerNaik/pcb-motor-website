@@ -1,0 +1,1413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PCB Motors | Integrated Motion Systems</title>
+    <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Full page background */
+        body {
+            background-image: url('background.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+        ::-webkit-scscrollbar-thumb:hover {
+            background: #555;
+        }
+        
+        /* Custom animation for buttons */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        .pulse:hover {
+            animation: pulse 1.5s infinite;
+        }
+        
+        /* Card hover effect - applied to all cards */
+        .card {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform-origin: center;
+            cursor: pointer;
+            position: relative;
+            z-index: 1;
+            will-change: transform;
+        }
+        
+        .card.expanded {
+            transform: scale(1.15) translateY(-20px);
+            z-index: 100;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3);
+            background-color: white;
+        }
+        
+        .blur-background .card:not(.expanded) {
+            filter: blur(5px);
+            pointer-events: none;
+        }
+        
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.3);
+            z-index: 50;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            pointer-events: none;
+        }
+        
+        .overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        @keyframes cardExpand {
+            0% { transform: scale(1) translateY(0); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+            100% { transform: scale(1.15) translateY(-20px); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3); }
+        }
+        
+        @keyframes cardReturn {
+            0% { transform: scale(1.15) translateY(-20px); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3); }
+            100% { transform: scale(1) translateY(0); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        }
+
+        /* Hero section with background image */
+
+.story-slide {
+  opacity: 0;
+  pointer-events: none;
+  z-index: 0;
+  transition: opacity 0.5s ease;
+}
+.story-slide.active {
+  opacity: 1 !important;
+  pointer-events: auto;
+  z-index: 1;
+}
+
+        .hero-section {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), 
+                              url('https://images.unsplash.com/photo-1558002038-1055907df827?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            color: white;
+            border-radius: 12px;
+            padding: 80px 20px;
+            margin-bottom: 40px;
+        }
+        
+        /* Feature cards hover effect */
+        .feature-card {
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            background-color: rgba(255,255,255,0.05);
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            background-color: rgba(255,255,255,0.1);
+        }
+        
+        /* Animated border for CTA */
+        @keyframes borderPulse {
+            0% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(99, 102, 241, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+        }
+        .cta-button {
+            animation: borderPulse 2s infinite;
+        }
+        
+        /* Section styling */
+        .page-section {
+            min-height: 100vh;
+            padding-top: 80px;
+            display: none;
+        }
+        
+        /* Active section */
+        .active-section {
+            display: block;
+        }
+        
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* === Sidebar Base Styling === */
+.sidebar {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 70px;
+    height: 100vh;
+    background-color: white;
+    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+    padding-top: 20px;
+    overflow: hidden;
+    transition: width 0.3s ease;
+    z-index: 10;
+}
+
+.sidebar:hover {
+    width: 250px;
+}
+
+/* === Main Content Adjustment === */
+.main-content {
+    margin-right: 70px;
+    width: calc(100% - 70px);
+    transition: margin-right 0.3s ease;
+}
+
+.sidebar:hover + .main-content {
+    margin-right: 250px;
+}
+
+/* === Logo Area === */
+.logo-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0 20px 20px;
+    border-bottom: 1px solid #e5e7eb;
+    margin-bottom: 20px;
+}
+
+.sidebar:hover .logo-container {
+    justify-content: flex-start;
+}
+
+.logo-text {
+    display: none;
+}
+
+.sidebar:hover .logo-text {
+    display: inline;
+    margin-left: 10px;
+}
+
+/* === Navigation Links === */
+.nav-link {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    color: #4b5563;
+    white-space: nowrap;
+    border-left: 4px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.nav-link:hover {
+    background-color: #f3f4f6;
+    color: #1e40af;
+}
+
+.nav-link.active {
+    background-color: #eff6ff;
+    color: #1e40af;
+    border-left-color: #1e40af;
+    font-weight: 500;
+}
+
+.nav-link i {
+    margin-right: 20px;
+    width: 24px;
+    text-align: center;
+    font-size: 1.25rem;
+}
+
+.nav-link-text {
+    display: none;
+}
+
+.sidebar:hover .nav-link-text {
+    display: inline;
+}
+
+/* === Auth Buttons (Login/Signup) === */
+.auth-buttons {
+    padding: 0 20px;
+    margin-top: 20px;
+    border-top: 1px solid #e5e7eb;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.sidebar:hover .auth-buttons {
+    align-items: stretch;
+}
+
+/* Shared button container */
+.auth-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    width: 100%;
+    transition: all 0.3s ease;
+}
+
+/* Icon styling */
+.auth-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 9999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    transition: all 0.3s ease;
+}
+
+/* Specific icons */
+.login-icon {
+    background-color: #e0e7ff;
+    color: #4f46e5;
+}
+
+.signup-icon {
+    background-color: #4f46e5;
+    color: white;
+}
+
+/* Hover effect */
+.auth-icon-button:hover,
+.auth-btn:hover .auth-icon {
+    transform: scale(1.1);
+}
+
+/* Text reveal only on hover */
+.auth-text {
+    margin-left: 12px;
+    color: #4f46e5;
+    font-weight: 500;
+    font-size: 14px;
+    white-space: nowrap;
+    display: none;
+}
+
+.sidebar:hover .auth-text {
+    display: inline;
+}
+
+/* === Responsive Behavior === */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+        padding-top: 0;
+        right: auto;
+    }
+
+    .main-content {
+        margin-right: 0;
+        width: 100%;
+    }
+
+    .nav-links {
+        display: flex;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    .nav-link {
+        border-left: none;
+        border-bottom: 3px solid transparent;
+    }
+
+    .nav-link.active {
+        border-bottom: 3px solid #1e40af;
+    }
+
+    .logo-text,
+    .nav-link-text,
+    .auth-text {
+        display: inline;
+    }
+
+    .auth-buttons {
+        flex-direction: row;
+        justify-content: center;
+    }
+}
+
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen overflow-y-auto">
+
+    <!-- Overlay for clicking outside -->
+    <div class="overlay" id="overlay"></div>
+
+    <!-- Collapsible Sidebar Navigation -->
+    <div class="sidebar">
+        <div class="logo-container">
+            <i class="fas fa-microchip text-indigo-600 text-2xl"></i>
+            <span class="logo-text text-xl font-bold text-indigo-600">PCB Motors</span>
+        </div>
+        
+        <div class="nav-links">
+            <a href="#" onclick="showSection('home')" class="nav-link active">
+                <i class="fas fa-home"></i>
+                <span class="nav-link-text">Home</span>
+            </a>
+            <a href="#" onclick="showSection('features')" class="nav-link">
+                <i class="fas fa-star"></i>
+                <span class="nav-link-text">Features</span>
+            </a>
+            <a href="#" onclick="showSection('about')" class="nav-link">
+                <i class="fas fa-info-circle"></i>
+                <span class="nav-link-text">About</span>
+            </a>
+            <a href="#" onclick="showSection('contact')" class="nav-link">
+                <i class="fas fa-envelope"></i>
+                <span class="nav-link-text">Contact</span>
+            </a>
+        </div>
+        
+<!-- Login/Signup Buttons -->
+<div class="auth-buttons py-6">
+    <button onclick="openLoginModal()" class="auth-btn group">
+        <div class="auth-icon login-icon">
+            <i class="fas fa-sign-in-alt"></i>
+        </div>
+        <span class="auth-text">Log In</span>
+    </button>
+    <button onclick="openSignupModal()" class="auth-btn group">
+        <div class="auth-icon signup-icon">
+            <i class="fas fa-user-plus"></i>
+        </div>
+        <span class="auth-text">Sign Up</span>
+    </button>
+</div>
+
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content pt-6 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <!-- Home Section (Default) -->
+        <section id="home" class="page-section active-section">
+            <!-- Hero Section with Background Image -->
+            <div class="hero-section">
+                <div class="text-center">
+                    <h1 class="text-4xl md:text-6xl font-bold text-white mb-6">
+                        Revolutionizing <span class="text-indigo-300">Motor Technology</span>
+                    </h1>
+                    <p class="text-lg md:text-xl text-gray-200 max-w-3xl mx-auto mb-10">
+                        PCB Motors by Integrated Motion Systems - Innovative, efficient, and compact motor solutions for the future.
+                    </p>
+                    <div class="flex justify-center space-x-4">
+                        <button class="px-8 py-3 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-all duration-300 cta-button transform hover:scale-105">
+                            Explore Products
+                        </button>
+                        <button onclick="showSection('features')" class="px-8 py-3 border border-white text-white font-medium rounded-lg hover:bg-white/10 transition-colors duration-200">
+                            Learn More
+                        </button>
+                    </div>
+                </div>
+                <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Story-style Features Section -->
+            <section class="py-12">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl font-bold text-white mb-4">Key Features of PCB Motors</h2>
+                    <p class="text-white max-w-2xl mx-auto">
+                        Cutting-edge technology that sets our PCB motors apart from traditional solutions.
+                    </p>
+                </div>
+            
+                <div class="relative max-w-2xl mx-auto bg-white rounded-xl shadow-sm overflow-hidden">
+                    <!-- Progress Bars -->
+                    <div class="flex px-4 pt-4">
+                        <div class="h-1 bg-gray-200 rounded-full flex-1 mr-1">
+                            <div class="progress-bar h-1 bg-indigo-600 rounded-full w-0 transition-all duration-300"></div>
+                        </div>
+                        <div class="h-1 bg-gray-200 rounded-full flex-1 mx-1">
+                            <div class="progress-bar h-1 bg-indigo-600 rounded-full w-0 transition-all duration-300"></div>
+                        </div>
+                        <div class="h-1 bg-gray-200 rounded-full flex-1 ml-1">
+                            <div class="progress-bar h-1 bg-indigo-600 rounded-full w-0 transition-all duration-300"></div>
+                        </div>
+                    </div>
+            
+                    <!-- Slides Container -->
+                    <div class="relative h-96 overflow-hidden">
+                        <!-- Slide 1 -->
+                        <div class="story-slide absolute inset-0 flex flex-col items-center justify-center p-8 translate-x-full opacity-0 transition-all duration-700">
+                            <div class="w-24 h-24 bg-indigo-100 rounded-full flex items-center justify-center mb-8">
+                                <i class="fas fa-bolt text-indigo-600 text-4xl"></i>
+                            </div>
+                            <h3 class="text-2xl font-semibold text-gray-900 mb-4">High Efficiency</h3>
+                            <p class="text-gray-600 text-center max-w-md mx-auto text-lg">
+                                Our PCB motors achieve up to 90% energy efficiency, significantly reducing power consumption.
+                            </p>
+                        </div>
+            
+                        <!-- Slide 2 -->
+                        <div class="story-slide absolute inset-0 flex flex-col items-center justify-center p-8 translate-x-full opacity-0 transition-all duration-700">
+                            <div class="w-24 h-24 bg-purple-100 rounded-full flex items-center justify-center mb-8">
+                                <i class="fas fa-weight text-purple-600 text-4xl"></i>
+                            </div>
+                            <h3 class="text-2xl font-semibold text-gray-900 mb-4">Compact Design</h3>
+                            <p class="text-gray-600 text-center max-w-md mx-auto text-lg">
+                                Ultra-thin and lightweight construction enables integration into space-constrained applications.
+                            </p>
+                        </div>
+            
+                        <!-- Slide 3 -->
+                        <div class="story-slide absolute inset-0 flex flex-col items-center justify-center p-8 translate-x-full opacity-0 transition-all duration-700">
+                            <div class="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center mb-8">
+                                <i class="fas fa-cogs text-blue-600 text-4xl"></i>
+                            </div>
+                            <h3 class="text-2xl font-semibold text-gray-900 mb-4">Precision Control</h3>
+                            <p class="text-gray-600 text-center max-w-md mx-auto text-lg">
+                                Advanced control algorithms allow for precise speed and position control.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- JS to auto-play stories with slide-in from right -->
+            <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const slides = document.querySelectorAll(".story-slide");
+                const bars = document.querySelectorAll(".progress-bar");
+                let currentIndex = 0;
+                const delay = 4000;
+            
+                function showSlide(index) {
+                    slides.forEach((slide, i) => {
+                        if (i === index) {
+                            slide.classList.remove("translate-x-full", "opacity-0");
+                            slide.classList.add("translate-x-0", "opacity-100");
+                            slide.style.zIndex = 1;
+                        } else {
+                            slide.classList.remove("translate-x-0", "opacity-100");
+                            slide.classList.add("translate-x-full", "opacity-0");
+                            slide.style.zIndex = 0;
+                        }
+                    });
+            
+                    bars.forEach((bar, i) => {
+                        bar.style.width = i <= index ? "100%" : "0";
+                        bar.style.transition = i === index ? `width ${delay - 500}ms linear` : "none";
+                    });
+                }
+            
+                showSlide(currentIndex);
+            
+                setInterval(() => {
+                    currentIndex = (currentIndex + 1) % slides.length;
+                    showSlide(currentIndex);
+                }, delay);
+            });
+            </script>
+            
+            <!-- Team Section -->
+            <section class="py-12">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl font-bold text-white mb-4">Our Engineering Team</h2>
+                    <p class="text-white max-w-2xl mx-auto">
+                        The brilliant minds behind Integrated Motion Systems' PCB motor technology.
+                    </p>
+                </div>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+                    <!-- Anya Sharma -->
+                    <div class="card bg-white p-6 rounded-xl shadow-sm" data-aos="fade-up">
+                        <div class="flex flex-col items-center">
+                            <img class="w-24 h-24 rounded-full mb-4 object-cover" src="https://randomuser.me/api/portraits/men/60.jpg" alt="Anya Sharma">
+                            <h3 class="text-lg font-semibold text-gray-900">Anya Sharma</h3>
+                            <p class="text-indigo-600 text-sm font-medium">Founder & CEO</p>
+                            <p class="text-gray-500 text-sm mt-2 text-center">Visionary leader with 15+ years in motor technology innovation</p>
+                            <div class="flex space-x-3 mt-3">
+                                <a href="#" class="text-gray-400 hover:text-indigo-600"><i class="fab fa-linkedin"></i></a>
+                                <a href="#" class="text-gray-400 hover:text-indigo-600"><i class="fas fa-envelope"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Raghuveer -->
+                    <div class="card bg-white p-6 rounded-xl shadow-sm" data-aos="fade-up">
+                        <div class="flex flex-col items-center">
+                            <img class="w-24 h-24 rounded-full mb-4 object-cover", src="https://randomuser.me/api/portraits/men/32.jpg" alt="Raghuveer">
+                            <h3 class="text-lg font-semibold text-gray-900">Raghuveer</h3>
+                            <p class="text-indigo-600 text-sm font-medium">Lead Engineer</p>
+                            <p class="text-gray-500 text-sm mt-2 text-center">Specializes in electromagnetic design and motor optimization</p>
+                            <div class="flex space-x-3 mt-3">
+                                <a href="#" class="text-gray-400 hover:text-indigo-600"><i class="fab fa-linkedin"></i></a>
+                                <a href="#" class="text-gray-400 hover:text-indigo-600"><i class="fas fa-envelope"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Robert -->
+                    <div class="card bg-white p-6 rounded-xl shadow-sm" data-aos="fade-up">
+                        <div class="flex flex-col items-center">
+                            <img class="w-24 h-24 rounded-full mb-4 object-cover" src="https://randomuser.me/api/portraits/men/45.jpg" alt="Robert">
+                            <h3 class="text-lg font-semibold text-gray-900">Robert</h3>
+                            <p class="text-indigo-600 text-sm font-medium">Control Systems Engineer</p>
+                            <p class="text-gray-500 text-sm mt-2 text-center">Develops advanced control algorithms for precision applications</p>
+                            <div class="flex space-x-3 mt-3">
+                                <a href="#" class="text-gray-400 hover:text-indigo-600"><i class="fab fa-linkedin"></i></a>
+                                <a href="#" class="text-gray-400 hover:text-indigo-600"><i class="fas fa-envelope"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Sam  -->
+                    <div class="card bg-white p-6 rounded-xl shadow-sm" data-aos="fade-up">
+                        <div class="flex flex-col items-center">
+                            <img class="w-24 h-24 rounded-full mb-4 object-cover" src="https://randomuser.me/api/portraits/men/28.jpg" alt="Sam ">
+                            <h3 class="text-lg font-semibold text-gray-900">Sam </h3>
+                            <p class="text-indigo-600 text-sm font-medium">Mechanical Engineer</p>
+                            <p class="text-gray-500 text-sm mt-2 text-center">Designs robust mechanical structures for PCB motor assemblies</p>
+                            <div class="flex space-x-3 mt-3">
+                                <a href="#" class="text-gray-400 hover:text-indigo-600"><i class="fab fa-linkedin"></i></a>
+                                <a href="#" class="text-gray-400 hover:text-indigo-600"><i class="fas fa-envelope"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Nedd -->
+                    <div class="card bg-white p-6 rounded-xl shadow-sm" data-aos="fade-up">
+                        <div class="flex flex-col items-center">
+                            <img class="w-24 h-24 rounded-full mb-4 object-cover" src="https://randomuser.me/api/portraits/men/36.jpg" alt="Nedd">
+                            <h3 class="text-lg font-semibold text-gray-900">Nedd</h3>
+                            <p class="text-indigo-600 text-sm font-medium">Manufacturing Engineer</p>
+                            <p class="text-gray-500 text-sm mt-2 text-center">Oversees production processes and quality assurance</p>
+                            <div class="flex space-x-3 mt-3">
+                                <a href="#" class="text-gray-400 hover:text-indigo-600"><i class="fab fa-linkedin"></i></a>
+                                <a href="#" class="text-gray-400 hover:text-indigo-600"><i class="fas fa-envelope"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Testimonials -->
+            <section class="py-12 bg-white rounded-xl shadow-sm mt-8">
+                <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="text-center mb-12">
+                        <h2 class="text-3xl font-bold text-gray-900 mb-4">Industry Recognition</h2>
+                        <p class="text-gray-600">
+                            What leading experts say about our PCB motor technology
+                        </p>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <!-- Testimonial 1 -->
+                        <div class="card bg-gray-50 p-6 rounded-lg" data-aos="fade-up">
+                            <div class="flex items-center mb-4">
+                                <img class="w-12 h-12 rounded-full" src="https://randomuser.me/api/portraits/women/43.jpg" alt="Dr. Elena Rodriguez">
+                                <div class="ml-4">
+                                    <h4 class="font-medium text-gray-900">Dr. Elena Rodriguez</h4>
+                                    <p class="text-gray-600 text-sm">Director, Advanced Motor Research Institute</p>
+                                </div>
+                            </div>
+                            <p class="text-gray-700">
+                                "Integrated Motion Systems's PCB motors represent a paradigm shift in compact motor technology. Their efficiency and power density are unmatched in the industry."
+                            </p>
+                        </div>
+                        
+                        <!-- Testimonial 2 -->
+                        <div class="card bg-gray-50 p-6 rounded-lg" data-aos="fade-up">
+                            <div class="flex items-center mb-4">
+                                <img class="w-12 h-12 rounded-full" src="https://randomuser.me/api/portraits/men/65.jpg" alt="James Wilson">
+                                <div class="ml-4">
+                                    <h4 class="font-medium text-gray-900">James Wilson</h4>
+                                    <p class="text-gray-600 text-sm">CTO, Robotics Solutions Inc.</p>
+                                </div>
+                            </div>
+                            <p class="text-gray-700">
+                                "We've integrated Integrated Motion Systems's PCB motors into our next-gen robotic arms. The precision and responsiveness have exceeded our expectations."
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- CTA Section -->
+            <section class="py-16 mt-12 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl text-center">
+                <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <h2 class="text-3xl font-bold text-white mb-6">Ready to revolutionize your application?</h2>
+                    <p class="text-indigo-100 mb-8 text-lg">
+                        Join industry leaders who are adopting PCB motor technology.
+                    </p>
+                    <button class="px-8 py-3 bg-white text-indigo-600 font-medium rounded-lg hover:bg-gray-100 transition-colors duration-200">
+                        Request Consultation
+                    </button>
+                </div>
+            </section>
+        </section>
+
+        <!-- Features Section (Detailed) -->
+        <section id="features" class="page-section">
+            <div class="py-12">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-4">Advanced Features of PCB Motors</h2>
+                    <p class="text-gray-600 max-w-2xl mx-auto">
+                        Explore the cutting-edge technology that powers our innovative motor solutions.
+                    </p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+                    <div class="card bg-white p-8 rounded-xl shadow-sm" data-aos="fade-up">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-4">Technical Specifications</h3>
+                        <ul class="space-y-3 text-gray-600">
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-indigo-500 mt-1 mr-2"></i>
+                                <span>Power range: 0.5W to 500W</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-indigo-500 mt-1 mr-2"></i>
+                                <span>Thickness as low as 1.5mm</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-indigo-500 mt-1 mr-2"></i>
+                                <span>Efficiency up to 92%</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-indigo-500 mt-1 mr-2"></i>
+                                <span>Precision positioning (±0.1°)</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-indigo-500 mt-1 mr-2"></i>
+                                <span>Customizable form factors</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="card bg-white p-8 rounded-xl shadow-sm" data-aos="fade-up">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-4">Performance Advantages</h3>
+                        <ul class="space-y-3 text-gray-600">
+                            <li class="flex items-start">
+                                <i class="fas fa-bolt text-yellow-500 mt-1 mr-2"></i>
+                                <span>50% lighter than conventional motors</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-tachometer-alt text-blue-500 mt-1 mr-2"></i>
+                                <span>Response time under 1ms</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-thermometer-half text-red-500 mt-1 mr-2"></i>
+                                <span>Low thermal dissipation</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-volume-off text-green-500 mt-1 mr-2"></i>
+                                <span>Virtually silent operation</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-shield-alt text-purple-500 mt-1 mr-2"></i>
+                                <span>EMI/RFI compliant designs</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="card bg-white rounded-xl shadow-sm overflow-hidden" data-aos="fade-up">
+                    <div class="md:flex">
+                        <div class="md:w-1/2 p-8">
+                            <h3 class="text-2xl font-bold text-gray-900 mb-4">Application Areas</h3>
+                            <p class="text-gray-600 mb-6">
+                                Our PCB motors are revolutionizing industries with their unique combination of compact size and high performance.
+                            </p>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="bg-indigo-50 p-4 rounded-lg">
+                                    <i class="fas fa-robot text-indigo-600 text-2xl mb-2"></i>
+                                    <h4 class="font-medium">Robotics</h4>
+                                </div>
+                                <div class="bg-purple-50 p-4 rounded-lg">
+                                    <i class="fas fa-heartbeat text-purple-600 text-2xl mb-2"></i>
+                                    <h4 class="font-medium">Medical</h4>
+                                </div>
+                                <div class="bg-blue-50 p-4 rounded-lg">
+                                    <i class="fas fa-car text-blue-600 text-2xl mb-2"></i>
+                                    <h4 class="font-medium">Automotive</h4>
+                                </div>
+                                <div class="bg-green-50 p-4 rounded-lg">
+                                    <i class="fas fa-drone-alt text-green-600 text-2xl mb-2"></i>
+                                    <h4 class="font-medium">Drones</h4>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="md:w-1/2 bg-gray-100 flex items-center justify-center p-8">
+                            <img src="https://images.unsplash.com/photo-1626785774573-4b799315345d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="PCB Motor Applications" class="rounded-lg shadow-md">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-12 text-center">
+                    <button onclick="showSection('home')" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200">
+                        <i class="fas fa-arrow-left mr-2"></i> Back to Home
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="about" class="page-section">
+            <div class="py-12">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl font-bold text-white mb-4">About Integrated Motion Systems</h2>
+                    <p class="text-white max-w-2xl mx-auto">
+                        Pioneering the future of motor technology since 2010.
+                    </p>
+                </div>
+                
+                <div class="card bg-white rounded-xl shadow-sm overflow-hidden mb-12" data-aos="fade-up">
+                    <div class="md:flex flex-row-reverse">
+                        <div class="md:w-1/2 p-8">
+                            <h3 class="text-2xl font-bold text-gray-900 mb-4">Our Story</h3>
+                            <p class="text-gray-600 mb-4">
+                                Founded in 2010 by Anya Sharma, Integrated Motion Systems began as a small research lab focused on electromagnetic technologies. Our breakthrough came in 2015 when we developed the first commercially viable PCB motor.
+                            </p>
+                            <p class="text-gray-600 mb-4">
+                                Today, we're recognized as global leaders in compact motor solutions, with patents in 12 countries and products deployed across multiple industries.
+                            </p>
+                            <div class="bg-indigo-50 p-4 rounded-lg">
+                                <h4 class="font-medium text-indigo-800 mb-2">Mission Statement</h4>
+                                <p class="text-gray-700">
+                                    "To revolutionize motion technology through innovative, efficient, and sustainable motor solutions that empower next-generation applications."
+                                </p>
+                            </div>
+                        </div>
+                        <div class="md:w-1/2 bg-gray-100 flex items-center justify-center p-8">
+                            <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80", alt="Integrated Motion Systems Office" class="rounded-lg shadow-md">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+                    <div class="card bg-white p-6 rounded-xl shadow-sm" data-aos="fade-up">
+                        <div class="text-indigo-600 text-4xl mb-4">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-900 mb-2">Awards & Recognition</h3>
+                        <ul class="text-gray-600 space-y-2">
+                            <li>2022 Innovation Award - IEEE</li>
+                            <li>2021 Green Technology Prize</li>
+                            <li>2020 Top 10 Robotics Components</li>
+                            <li>5 patents in motor technology</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="card bg-white p-6 rounded-xl shadow-sm" data-aos="fade-up">
+                        <div class="text-blue-600 text-4xl mb-4">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-900 mb-2">Growth & Impact</h3>
+                        <ul class="text-gray-600 space-y-2">
+                            <li>150+ employees worldwide</li>
+                            <li>3 manufacturing facilities</li>
+                            <li>Present in 15 countries</li>
+                            <li>5000+ motors shipped annually</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="card bg-white p-6 rounded-xl shadow-sm" data-aos="fade-up">
+                        <div class="text-green-600 text-4xl mb-4">
+                            <i class="fas fa-leaf"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-900 mb-2">Sustainability</h3>
+                        <ul class="text-gray-600 space-y-2">
+                            <li>90% less material waste</li>
+                            <li>65% energy savings</li>
+                            <li>100% recyclable components</li>
+                            <li>Carbon neutral since 2020</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="showSection('home')" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200">
+                        <i class="fas fa-arrow-left mr-2"></i> Back to Home
+                    </button>
+                </div>
+            </div>
+        </section>
+
+<!-- Contact Section -->
+<section id="contact" class="page-section">
+    <div class="py-12">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl font-bold text-white mb-4">Contact Us</h2>
+            <p class="text-white max-w-2xl mx-auto">
+                Get in touch with our team for inquiries, partnerships, or technical support.
+            </p>
+        </div>
+    </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+                    <div class="card bg-white p-8 rounded-xl shadow-sm" data-aos="fade-up">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-6">Send us a message</h3>
+                        <form class="space-y-4">
+                            <div>
+                                <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                                <input type="text" id="name", class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                            </div>
+                            
+                            <div>
+                                <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                                <input type="email" id="email" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                            </div>
+                            
+                            <div>
+                                <label for="subject" class="block text-sm font-medium text-gray-700 mb-1">Subject</label>
+                                <select id="subject" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                    <option>General Inquiry</option>
+                                    <option>Technical Support</option>
+                                    <option>Sales</option>
+                                    <option>Partnership</option>
+                                    <option>Careers</option>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label for="message", class="block text-sm font-medium text-gray-700 mb-1">Message</label>
+                                <textarea id="message" rows="4" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+                            </div>
+                            
+                            <button type="submit" class="w-full py-2 px-4 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors duration-200">
+                                Send Message
+                            </button>
+                        </form>
+                    </div>
+                    
+                    <div class="card bg-white p-8 rounded-xl shadow-sm" data-aos="fade-up">
+                        <h3 class="text-xl font-semibold text-grey-900 mb-6">Contact Information</h3>
+                        <div class="space-y-6">
+                            <div class="flex items-start">
+                                <div class="bg-indigo-100 p-3 rounded-lg mr-4">
+                                    <i class="fas fa-map-marker-alt text-indigo-600"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium text-gray-900">Headquarters</h4>
+                                    <p class="text-gray-600">123 Innovation Drive, Tech Park<br>Bangalore, Karnataka 560001<br>India</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start">
+                                <div class="bg-blue-100 p-3 rounded-lg mr-4">
+                                    <i class="fas fa-phone-alt text-blue-600"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium text-gray-900">Phone</h4>
+                                    <p class="text-gray-600">+91 80 1234 5678 (Office)<br+91 98 7654 3210 (Support)</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start">
+                                <div class="bg-green-100 p-3 rounded-lg mr-4">
+                                    <i class="fas fa-envelope text-green-600"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium text-gray-900">Email</h4>
+                                    <p class="text-gray-600">info@Integrated Motion Systems.com<br>support@Integrated Motion Systems.com</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start">
+                                <div class="bg-purple-100 p-3 rounded-lg mr-4">
+                                    <i class="fas fa-clock text-purple-600"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium text-gray-900">Business Hours</h4>
+                                    <p class="text-gray-600">Monday - Friday: 9:00 AM - 6:00 PM<br>Saturday: 10:00 AM - 2:00 PM<br>Sunday: Closed</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-8">
+                            <h4 class="font-medium text-gray-900 mb-4">Follow Us</h4>
+                            <div class="flex space-x-4">
+                                <a href="#" class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-gray-600 hover:bg-indigo-600 hover:text-white transition-colors duration-200">
+                                    <i class="fab fa-linkedin-in"></i>
+                                </a>
+                                <a href="#" class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-gray-600 hover:bg-blue-400 hover:text-white transition-colors duration-200">
+                                    <i class="fab fa-twitter"></i>
+                                </a>
+                                <a href="#" class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-gray-600 hover:bg-blue-600 hover:text-white transition-colors duration-200">
+                                    <i class="fab fa-facebook-f"></i>
+                                </a>
+                                <a href="#" class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-gray-600 hover:bg-red-600 hover:text-white transition-colors duration-200">
+                                    <i class="fab fa-youtube"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card bg-white rounded-xl shadow-sm overflow-hidden mb-12" data-aos="fade-up">
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3888.0042691047857!2d77.59495041482194!3d12.971646990857037!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bae1670c9b44e6d%3A0xf15e5e5e9a9c77d5!2sMG%20Road%2C%20Bengaluru%2C%20Karnataka!5e0!3m2!1sen!2sin!4v1626785774573!5m2!1sen!2sin" width="100%" height="400" style="border:0;" allowfullscreen="" loading="lazy" class="rounded-lg"></iframe>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="showSection('home')" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200">
+                        <i class="fas fa-arrow-left mr-2"></i> Back to Home
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+<footer class="bg-gray-900 text-white py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <!-- Company Info -->
+            <div>
+                <div class="flex items-center mb-4">
+                    <i class="fas fa-microchip text-indigo-400 text-2xl mr-2"></i>
+                    <span class="text-xl font-bold text-white">Integrated Motion Systems</span>
+                </div>
+                <p class="text-gray-400">
+                    Innovating motor technology for the future.
+                </p>
+            </div>
+
+            <!-- Products -->
+            <div>
+                <h3 class="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-4">Products</h3>
+                <ul class="space-y-2">
+                    <li><a href="pcb_motors.html" class="text-gray-400 hover:text-white transition-colors duration-200">PCB Motors</a></li>
+                    <li><a href="custom_solutions.html" class="text-gray-400 hover:text-white transition-colors duration-200">Custom Solutions</a></li>
+                    <li><a href="development_kits.html" class="text-gray-400 hover:text-white transition-colors duration-200">Development Kits</a></li>
+                </ul>
+            </div>
+
+            <!-- Company -->
+            <div>
+                <h3 class="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-4">Company</h3>
+                <ul class="space-y-2">
+                    <li><a href="#" onclick="showSection('about')" class="text-gray-400 hover:text-white transition-colors duration-200">About</a></li>
+                    <li><a href="#" onclick="showSection('home')" class="text-gray-400 hover:text-white transition-colors duration-200">Team</a></li>
+                    <li><a href="#" onclick="showSection('contact')" class="text-gray-400 hover:text-white transition-colors duration-200">Careers</a></li>
+                    <li><a href="#" onclick="showSection('contact')" class="text-gray-400 hover:text-white transition-colors duration-200">Contact</a></li>
+                </ul>
+            </div>
+
+            <!-- Legal -->
+            <div>
+                <h3 class="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-4">Legal</h3>
+                <ul class="space-y-2">
+                    <li><a href="privacy_policy.html" class="text-gray-400 hover:text-white transition-colors duration-200">Privacy</a></li>
+                    <li><a href="terms_and_conditions.html" class="text-gray-400 hover:text-white transition-colors duration-200">Terms</a></li>
+                    <li><a href="patents.html" class="text-gray-400 hover:text-white transition-colors duration-200">Patents</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Bottom Section -->
+        <div class="border-t border-gray-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
+            <p class="text-gray-400 text-sm">© 2023 Integrated Motion Systems. All rights reserved.</p>
+            <div class="flex space-x-6 mt-4 md:mt-0">
+                <a href="#" class="text-gray-400 hover:text-white transition-colors duration-200"><i class="fab fa-twitter"></i></a>
+                <a href="#" class="text-gray-400 hover:text-white transition-colors duration-200"><i class="fab fa-linkedin"></i></a>
+                <a href="#" class="text-gray-400 hover:text-white transition-colors duration-200"><i class="fab fa-github"></i></a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black bg-opacity-50">
+        <div class="bg-white rounded-xl shadow-xl max-w-md w-full p-8 mx-4">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-900">Access Your Account</h2>
+                <button onclick="closeModal('loginModal')" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <form class="space-y-6">
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                    <input type="email" id="email" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                </div>
+                
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-700 mb=1">Password</label>
+                    <input type="password" id="password" class="w-full px-4 py=2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                </div>
+                
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <input id="remember-me" type="checkbox" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                        <label for="remember-me" class="ml-2 block text-sm text-gray-700">Remember me</label>
+                    </div>
+                    <a href="#" class="text-sm text-indigo-600 hover:text-indigo-500">Forgot password?</a>
+                </div>
+                
+                <button type="submit" class="w-full py-2 px-4 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors duration-200">
+                    Sign In
+                </button>
+            </form>
+            
+            <div class="mt-6">
+                <div class="relative">
+                    <div class="absolute inset-0 flex items-center">
+                    <div class="w-full border-t border-gray-300"></div>
+                    </div>
+                    <div class="relative flex justify-center text-sm">
+                    <span class="px=2 bg-white text-gray-500">Or continue with</span>
+                    </div>
+                </div>
+                
+                <div class="mt-6 grid grid-cols-2 gap-3">
+                    <button class="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-lg bg-white text-sm font-medium text-gray=700 hover:bg-gray-50">
+                        <i class="fab fa-google text-red-500 mr-2"></i> Google
+                    </button>
+                    <button class="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-lg bg-white text-sm font-medium text-gray=700 hover:bg-gray-50">
+                        <i class="fab fa-github text-gray-800 mr-2"></i> GitHub
+                    </button>
+                </div>
+            </div>
+            
+            <p class="mt-6 text-center text-sm text-gray-600">
+                Don't have an account? <button onclick="switchToSignup()" class="text-indigo-600 hover:text-indigo-500 font-medium">Sign up</button>
+            </p>
+        </div>
+    </div>
+
+    <!-- Signup Modal -->
+    <div id="signupModal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black bg-opacity=50">
+        <div class="bg-white rounded-xl shadow-xl max-w-md w-full p-8 mx-4">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-900">Create Integrated Motion Systems Account</h2>
+                <button onclick="closeModal('signupModal')", class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <form class="space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="firstName" class="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+                        <input type="text" id="firstName" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label for="lastName" class="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+                        <input type="text" id="lastName" class="w-full px=4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+                </div>
+                
+                <div>
+                    <label for="signupEmail" class="block text-sm font-medium text-gray=700 mb-1">Email</label>
+                    <input type="email" id="signupEmail" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                </div>
+                
+                <div>
+                    <label for="signupPassword" class="block text-sm font-medium text-gray-700 mb=1">Password</label>
+                    <input type="password" id="signupPassword" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                </div>
+                
+                <div>
+                    <label for="confirmPassword" class="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
+                    <input type="password" id="confirmPassword" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                </div>
+                
+                <div class="flex items-center">
+                    <input id="terms" type="checkbox" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                    <label for="terms" class="ml-2 block text-sm text-gray-700">
+                        I agree to the <a href="terms_and_conditions.html" class="text-indigo-600 hover:text-indigo-500">Terms</a> and <a href="privacy_policy.html" class="text-indigo-600 hover:text-indigo-500">Privacy Policy</a>
+                    </label>
+                </div>
+                
+                <button type="submit" class="w-full py-2 px-4 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors duration-200">
+                    Create Account
+                </button>
+            </form>
+            
+            <div class="mt-6">
+                <div class="relative">
+                    <div class="absolute inset=0 flex items-center">
+                        <div class="w-full border-t border-gray-300"></div>
+                    </div>
+                    <div class="relative flex justify-center text-sm">
+                        <span class="px-2 bg-white text-gray-500">Or sign up with</span>
+                    </div>
+                </div>
+                
+                <div class="mt-6 grid grid-cols-2 gap-3">
+                    <button class="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-lg bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                        <i class="fab fa-google text-red-500 mr-2"></i> Google
+                    </button>
+                    <button class="w-full flex justify-center py=2 px-4 border border-gray-300 rounded-lg bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                        <i class="fab fa-github text-gray-800 mr-2"></i> GitHub
+                    </button>
+                </div>
+            </div>
+            
+            <p class="mt=6 text-center text-sm text-gray-600">
+                Already have an account? <button onclick="switchToLogin()" class="text-indigo-600 hover:text-indigo-500 font-medium">Log in</button>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Section management functions
+        function showSection(sectionId) {
+            // Update active nav link
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            
+            // Add active class to clicked link
+            document.querySelectorAll('.nav-link').forEach(link => {
+                if (link.getAttribute('onclick').includes(sectionId)) {
+                    link.classList.add('active');
+                }
+            });
+            
+            // Hide all sections
+            document.querySelectorAll('.page-section').forEach(section => {
+                section.classList.remove('active-section');
+            });
+            
+            // Show the selected section
+            document.getElementById(sectionId).classList.add('active-section');
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        // Modal functions
+        function openLoginModal() {
+            document.getElementById('loginModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function openSignupModal() {
+            document.getElementById('signupModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+        
+        function switchToSignup() {
+            closeModal('loginModal');
+            openSignupModal();
+        }
+        
+        function switchToLogin() {
+            closeModal('signupModal');
+            openLoginModal();
+        }
+        
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            if (event.target.id === 'loginModal') {
+                closeModal('loginModal');
+            }
+            if (event.target.id === 'signupModal') {
+                closeModal('signupModal');
+            }
+        }
+    
+        let currentlyExpandedCard = null;
+
+        function expandCard(card) {
+            if (card === currentlyExpandedCard) {
+                collapseCard();
+                return;
+            }
+            if (currentlyExpandedCard) {
+                currentlyExpandedCard.classList.remove('expanded');
+                currentlyExpandedCard.style.animation = 'cardReturn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards';
+            }
+            card.classList.add('expanded');
+            card.style.animation = 'cardExpand 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards';
+            currentlyExpandedCard = card;
+
+            const container = card.parentElement;
+            container.classList.add('blur-background');
+            document.getElementById('overlay').classList.add('active');
+        }
+
+        function collapseCard() {
+            if (currentlyExpandedCard) {
+                currentlyExpandedCard.classList.remove('expanded');
+                currentlyExpandedCard.style.animation = 'cardReturn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards';
+                currentlyExpandedCard = null;
+                document.querySelectorAll('.blur-background').forEach(container => container.classList.remove('blur-background'));
+                document.getElementById('overlay').classList.remove('active');
+            }
+        }
+
+        // Ensure the overlay click event listener is functioning properly
+        document.getElementById('overlay').addEventListener('click', collapseCard);
+
+        // Apply click event to all cards
+        document.querySelectorAll('.card').forEach(card => {
+            card.addEventListener('click', function(e) {
+                e.stopPropagation();
+                expandCard(this);
+            });
+        });
+
+        // Story-style slider functionality
+        const storySlides = document.querySelectorAll('.story-slide');
+        const progressBars = document.querySelectorAll('.progress-bar');
+        const prevBtn = document.querySelector('.story-prev');
+        const nextBtn = document.querySelector('.story-next');
+        let currentSlide = 0;
+        let intervalId;
+        const slideDuration = 5000; // 5 seconds per slide
+
+function showSlide(index) {
+    storySlides.forEach((slide, i) => {
+        slide.classList.remove('active');
+    });
+    storySlides[index].classList.add('active');
+
+    progressBars.forEach(bar => {
+        bar.style.width = '0%';
+        bar.style.transition = 'none';
+    });
+
+    setTimeout(() => {
+        progressBars[index].style.transition = `width ${slideDuration}ms linear`;
+        progressBars[index].style.width = '100%';
+    }, 10);
+}
+  storySlides.forEach((slide, i) => {
+    slide.classList.remove('active');
+  });
+  storySlides[index].classList.add('active');
+
+  progressBars.forEach(bar => {
+    bar.style.width = '0%';
+    bar.style.transition = 'none';
+  });
+
+  setTimeout(() => {
+    progressBars[index].style.transition = `width ${slideDuration}ms linear`;
+    progressBars[index].style.width = '100%';
+  }, 10);
+// Show current slide
+storySlides[currentSlide].classList.remove('opacity-0');
+storySlides[currentSlide].classList.add('opacity-100');
+
+// Reset all progress bars
+progressBars.forEach(bar => {
+    bar.style.width = '0%';
+    bar.style.transition = 'none';
+});
+
+// Start progress animation for current bar
+setTimeout(() => {
+    progressBars[currentSlide].style.transition = `width ${slideDuration}ms linear`;
+    progressBars[currentSlide].style.width = '100%';
+}, 10);
+
+        function nextSlide() {
+            currentSlide = (currentSlide + 1) % storySlides.length;
+            showSlide(currentSlide);
+            resetTimer();
+        }
+
+        function prevSlide() {
+            currentSlide = (currentSlide - 1 + storySlides.length) % storySlides.length;
+            showSlide(currentSlide);
+            resetTimer();
+        }
+
+        function resetTimer() {
+            clearInterval(intervalId);
+            startTimer();
+        }
+
+        function startTimer() {
+            intervalId = setInterval(nextSlide, slideDuration);
+        }
+
+        // Event listeners
+        nextBtn.addEventListener('click', nextSlide);
+        prevBtn.addEventListener('click', prevSlide);
+
+        // Initialize
+        showSlide(currentSlide);
+        startTimer();
+
+        // Pause on hover
+        const sliderContainer = document.querySelector('.relative.max-w-2xl');
+        sliderContainer.addEventListener('mouseenter', () => {
+            clearInterval(intervalId);
+            progressBars[currentSlide].style.transition = 'none';
+            progressBars[currentSlide].style.width = progressBars[currentSlide].style.width;
+        });
+
+        sliderContainer.addEventListener('mouseleave', () => {
+            resetTimer();
+        });
+
+        // Toggle between icon and text versions of auth buttons when sidebar is hovered
+        const sidebar = document.querySelector('.sidebar');
+        const authIcons = document.querySelectorAll('.auth-icon-button');
+        const authTextButtons = document.querySelectorAll('.hidden-expanded');
+        
+        // Initialize state - show icons only by default
+        authTextButtons.forEach(btn => btn.style.display = 'none');
+        
+        sidebar.addEventListener('mouseenter', function() {
+            authIcons.forEach(btn => btn.style.display = 'none');
+            authTextButtons.forEach(btn => btn.style.display = 'block');
+        });
+
+        sidebar.addEventListener('mouseleave', function() {
+            authIcons.forEach(btn => btn.style.display = 'flex');
+            authTextButtons.forEach(btn => btn.style.display = 'none');
+        });
+    </script>
+<script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+<script>
+  AOS.init({
+    duration: 1000,
+    once: true,
+    offset: 100,
+    easing: 'ease-in-out'
+  });
+</script>
+</body>
+</html>
