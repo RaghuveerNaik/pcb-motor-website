@@ -24,15 +24,14 @@ This single-page interactive site introduces users to the next generation of mot
 - JavaScript (for interactions)
 - AOS (Animate On Scroll)
 
-## 🏗️ Folder Structure
+Folder Structure
 project-folder/
-│
-├── index.html         <-- Main HTML file
-├── custom_solutions.html          <-- html file
-├── development_kits.html          <-- html file
-├── patents.html          <-- html file
-├── pcb_motors.html          <-- html file
-├── privacy_policy.html          <-- html file
-├── terms_and_conditions.html          <-- html file
-├── images/            <-- Images folder
+  index.html         <-- Main HTML file
+  custom_solutions.html          <-- html file
+  development_kits.html          <-- html file
+  patents.html          <-- html file
+  pcb_motors.html          <-- html file
+  privacy_policy.html          <-- html file
+  terms_and_conditions.html          <-- html file
+  images/            <-- Images folder
 
